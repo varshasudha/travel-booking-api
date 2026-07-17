@@ -53,3 +53,20 @@ def create_booking(booking: BookingRequest):
     next_booking_id += 1
 
     return new_booking
+@app.get("/bookings/{booking_id}")
+def get_booking(booking_id: int):
+    booking = next((b for b in bookings_db if b["id"] == booking_id), None)
+    if booking is None:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    return booking
+
+@app.delete("/bookings/{booking_id}")
+def cancel_booking(booking_id: int):
+    booking = next((b for b in bookings_db if b["id"] == booking_id), None)
+    if booking is None:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    if booking["status"] == "CANCELLED":
+        raise HTTPException(status_code=409, detail="Booking already cancelled")
+
+    booking["status"] = "CANCELLED"
+    return booking
